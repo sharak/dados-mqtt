@@ -72,13 +72,21 @@ client.on('message', function (topic, message) {
         if(dice=="fudge"){
           resposta.result["fudge"]=[];
           for(var i = 0; i<json.dice.fudge;i++){
-            resposta.result["fudge"].push(Math.floor(Math.random() * 3) + 1);
+            var dice_value = Math.floor(Math.random() * 3) + 1;
+
+            resposta.result["fudge"].push({
+              "value": dice_value,
+              "explode": false
+            });
           }
         } else {
           resposta.result[dice]=[];
+
           for(var i = 0; i<json.dice[dice]; i++){
             var max = dice.split("d")[1];
-            resposta.result[dice].push(Math.floor(Math.random() * max) + 1);
+            // if (json.explode)
+            var results = roll_dice(max,json.explode);
+            resposta.result[dice]=resposta.result[dice].concat(results);
           }
         }
       }
@@ -90,4 +98,19 @@ client.on('message', function (topic, message) {
 
   }
 
-})
+});
+function roll_dice(max, explode) {
+  var value = Math.floor(Math.random() * max) + 1;
+  var exploded_dices = [];
+  var valueObj = {
+    "value": value,
+    "explode": false
+  };
+  if (explode && value == max) {
+    valueObj.explode = true;
+    exploded_dices = roll_dice(max, explode);
+  }
+
+  exploded_dices.unshift(valueObj);
+  return exploded_dices;
+};
