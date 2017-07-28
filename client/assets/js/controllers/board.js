@@ -25,8 +25,8 @@
     $scope.nombre_sala = decodeURI($scope.user.room);
 
     //Conectar ó MQTT e esperar eventos do formulario e as resposta do broker
-    // var ip = "127.0.0.1";
-    var ip = "dados.tr4ck.net";
+    var ip = "127.0.0.1";
+    // var ip = "dados.tr4ck.net";
     var port = "4000"; //MQTT over WebSockets, unencrypted
     var id = $scope.user.nick;
     var mqttuser;
@@ -138,7 +138,7 @@
             // console.log(tiradas);
             for (var tirada in tiradas){
               // console.log(typeof(tiradas[tirada]));
-              var num = tiradas[tirada].toString();
+              var num = tiradas[tirada].value.toString();
 
               //for fudge dices
               if(dado=="fudge"){
@@ -154,8 +154,16 @@
               }
 
               // <i class="icon-dice-d8"></i>
-              var html = '<div class="grid-content text-center" style="float: left;"><img src="assets/img/'+dado+'-resultado.png" style="width:40px;"><label style="font-size:2em; color:'+json.color+'">'+num+'</label></div>';
+              var explode_html = "";
+              var html = '<div class="grid-content text-center" style="float: left;"><img src="assets/img/'+dado+'-resultado.png" style="width:40px;"><label ';
+              if (tiradas[tirada].explode) {
+                html += 'class="explode" ';
+                explode_html ='<div class="grid-content text-center" style="float: left; padding: 7px 0;"><label style="font-size:2em; color:#'+json.color+'">></label></div>';
+              }
+              html += 'style="font-size:2em; color:#'+json.color+'">'+num+'</label></div>';
+              html += explode_html;
               // div_result.append(dado+":"+tiradas[tirada].toString()+"&nbsp;");
+
               div_result.append(html);
               $scope.$apply();
 
@@ -249,6 +257,7 @@
                                    "user":$scope.user.nick,
                                    "slug":$scope.user.slug,
                                    "room":$scope.user.room,
+                                   "explode":$scope.explode_dices,
                                    "dice": $scope.input,
                                    "color": $scope.dicecolor})
       console.log(tirada);
@@ -264,6 +273,7 @@
                                    "user":$scope.user.nick,
                                    "slug":$scope.user.slug,
                                    "room":$scope.user.room,
+                                   "explode":$scope.explode_dices,
                                    "dice": dados,
                                    "color": $scope.dicecolor})
       console.log(tirada);
@@ -329,6 +339,9 @@
       MqttCounterQuery();
     }
 
+
+    // Explosive Dices
+    $scope.explode_dices = false;
   }
 
 })();
